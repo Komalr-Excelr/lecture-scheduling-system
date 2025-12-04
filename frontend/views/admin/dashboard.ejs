@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Lecture Scheduler</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4e73df;
+            --success: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --dark: #5a5c69;
+            --light: #f8f9fc;
+        }
+        
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary) 0%, #224abe 100%);
+            min-height: 100vh;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.8);
+            padding: 0.75rem 1rem;
+            margin: 2px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: white;
+            background: rgba(255,255,255,.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,.2);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e3e6f0;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 700;
+            padding: 1rem 1.35rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stat-card {
+            border-left: 4px solid;
+            padding: 15px;
+        }
+        
+        .stat-card.instructors {
+            border-left-color: var(--primary);
+        }
+        
+        .stat-card.courses {
+            border-left-color: var(--success);
+        }
+        
+        .stat-card.lectures {
+            border-left-color: var(--info);
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .stat-text {
+            color: var(--dark);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #d1d3e2;
+            padding: 10px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        
+        .table th {
+            background-color: var(--light);
+            border-bottom: 2px solid #e3e6f0;
+            font-weight: 700;
+            color: var(--dark);
+            padding: 15px;
+        }
+        
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center">
+                <div class="user-avatar me-3">
+                    <%= user.name.charAt(0).toUpperCase() %>
+                </div>
+                <div>
+                    <h5 class="mb-0"><%= user.name %></h5>
+                    <small class="text-muted">Administrator</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="/admin/logout" class="btn btn-outline-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="p-4">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                        Lecture Scheduler
+                    </h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#courses-section">
+                                <i class="fas fa-book"></i> Courses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#instructors-section">
+                                <i class="fas fa-users"></i> Instructors
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#lectures-section">
+                                <i class="fas fa-calendar-alt"></i> Lectures
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Alerts -->
+                <% if (success && success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> <%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
+                
+                <% if (error && error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
+
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                        Admin Dashboard
+                    </h2>
+                    <div class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        <%= new Date().toDateString() %>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card stat-card instructors">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h6 class="stat-text">TOTAL INSTRUCTORS</h6>
+                                        <h2 class="stat-number"><%= instructors.length %></h2>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-users stat-icon text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card courses">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h6 class="stat-text">TOTAL COURSES</h6>
+                                        <h2 class="stat-number"><%= courses.length %></h2>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-book stat-icon text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card lectures">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h6 class="stat-text">SCHEDULED LECTURES</h6>
+                                        <h2 class="stat-number"><%= lectures.length %></h2>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar-alt stat-icon text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Course & Assign Lecture -->
+                <div class="row mb-5" id="courses-section">
+                    <!-- Add Course -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-plus-circle me-2"></i>
+                                    Add New Course
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/admin/add-course" method="POST">
+                                    <div class="mb-3">
+                                        <label class="form-label">Course Name</label>
+                                        <input type="text" name="name" class="form-control" 
+                                               placeholder="Enter course name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Level</label>
+                                        <select name="level" class="form-select" required>
+                                            <option value="">Select Level</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Description</label>
+                                        <textarea name="description" class="form-control" 
+                                                  rows="3" placeholder="Course description..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-save me-2"></i>Add Course
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assign Lecture -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calendar-plus me-2"></i>
+                                    Schedule Lecture
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/admin/assign-lecture" method="POST">
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Course</label>
+                                        <select name="course_id" class="form-select" required>
+                                            <option value="">-- Choose Course --</option>
+                                            <% courses.forEach(course => { %>
+                                                <option value="<%= course.id %>">
+                                                    <%= course.name %> (<%= course.level %>)
+                                                </option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Instructor</label>
+                                        <select name="instructor_id" class="form-select" required>
+                                            <option value="">-- Choose Instructor --</option>
+                                            <% instructors.forEach(instructor => { %>
+                                                <option value="<%= instructor.id %>">
+                                                    <%= instructor.name %>
+                                                </option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Lecture Date</label>
+                                        <input type="date" name="lecture_date" class="form-control" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-calendar-check me-2"></i>Schedule Lecture
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructors Table -->
+                <div class="row mb-5" id="instructors-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>
+                                    All Instructors
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (instructors.length === 0) { %>
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No instructors found</p>
+                                    </div>
+                                <% } else { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% instructors.forEach(instructor => { %>
+                                                <tr>
+                                                    <td><%= instructor.id %></td>
+                                                    <td>
+                                                        <i class="fas fa-user-circle me-2 text-primary"></i>
+                                                        <%= instructor.name %>
+                                                    </td>
+                                                    <td><%= instructor.email %></td>
+                                                    <td>
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-check me-1"></i>Active
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lectures Table -->
+                <div class="row" id="lectures-section">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Scheduled Lectures
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (lectures.length === 0) { %>
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No lectures scheduled yet</p>
+                                        <p class="small text-muted">Use the form above to schedule lectures</p>
+                                    </div>
+                                <% } else { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Course</th>
+                                                    <th>Instructor</th>
+                                                    <th>Date</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% lectures.forEach(lecture => { %>
+                                                <tr>
+                                                    <td>
+                                                        <strong><%= lecture.course_name %></strong>
+                                                    </td>
+                                                    <td>
+                                                        <i class="fas fa-chalkboard-teacher me-1 text-info"></i>
+                                                        <%= lecture.instructor_name %>
+                                                    </td>
+                                                    <td>
+                                                        <i class="fas fa-calendar-day me-1 text-success"></i>
+                                                        <%= new Date(lecture.lecture_date).toDateString() %>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-check me-1"></i>Scheduled
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Smooth scroll for sidebar links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Set minimum date for date input to today
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+        }
+    </script>
+</body>
+</html>

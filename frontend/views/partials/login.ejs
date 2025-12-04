@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card login-card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Admin Login</h4>
+            </div>
+            <div class="card-body">
+                <form action="/admin/login" method="POST">
+                    <div class="mb-3">
+                        <label>Email:</label>
+                        <input type="email" name="email" class="form-control" required 
+                               value="admin@example.com" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label>Password:</label>
+                        <input type="password" name="password" class="form-control" required 
+                               value="admin123">
+                        <small class="text-muted">Use password: admin123</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+                
+                <div class="mt-3 text-center">
+                    <a href="/instructor/login">Instructor Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

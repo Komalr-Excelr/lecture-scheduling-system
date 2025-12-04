@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Lectures | Lecture Scheduler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .lecture-card {
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+        
+        .lecture-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .lecture-date {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #224abe 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/instructor/dashboard">
+                <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>
+                Lecture Scheduler
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end">
+                    <h6 class="mb-0"><%= user.name %></h6>
+                    <small class="text-muted">Instructor</small>
+                </div>
+                <a href="/instructor/logout" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Alerts -->
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+        
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2>Welcome, <%= user.name %>!</h2>
+                    <p class="mb-0 opacity-75">
+                        <i class="fas fa-envelope me-1"></i> <%= user.email %>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="bg-white text-primary rounded p-3 d-inline-block">
+                        <h4 class="mb-0"><%= lectures.length %></h4>
+                        <small class="text-muted">Total Lectures</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lectures -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            My Scheduled Lectures
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (lectures.length === 0) { %>
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-times"></i>
+                                <h4 class="text-muted">No Lectures Assigned</h4>
+                                <p class="text-muted">You don't have any lectures scheduled yet.</p>
+                                <p class="small text-muted">Contact the administrator to get lectures assigned.</p>
+                            </div>
+                        <% } else { %>
+                            <div class="row">
+                                <% lectures.forEach(lecture => { %>
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card lecture-card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div>
+                                                    <h5 class="card-title mb-1">
+                                                        <%= lecture.course_name %>
+                                                    </h5>
+                                                    <span class="badge bg-primary"><%= lecture.level %></span>
+                                                </div>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Confirmed
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="lecture-details">
+                                                <p class="mb-2">
+                                                    <i class="fas fa-calendar-day me-2 text-success"></i>
+                                                    <strong>Date:</strong> 
+                                                    <%= new Date(lecture.lecture_date).toDateString() %>
+                                                </p>
+                                                
+                                                <% if (lecture.start_time) { %>
+                                                <p class="mb-2">
+                                                    <i class="fas fa-clock me-2 text-warning"></i>
+                                                    <strong>Time:</strong> 
+                                                    <%= lecture.start_time %> - <%= lecture.end_time %>
+                                                </p>
+                                                <% } %>
+                                                
+                                                <p class="mb-0">
+                                                    <i class="fas fa-info-circle me-2 text-info"></i>
+                                                    <small class="text-muted">
+                                                        Scheduled on: <%= new Date(lecture.created_at).toLocaleDateString() %>
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            </div>
+                            
+                            <!-- Summary -->
+                            <div class="card mt-4">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-chart-bar me-2"></i>Lecture Summary</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1">
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                <strong>Total Lectures:</strong> <%= lectures.length %>
+                                            </p>
+                                            <% 
+                                                const upcoming = lectures.filter(l => new Date(l.lecture_date) >= new Date()).length;
+                                                const past = lectures.length - upcoming;
+                                            %>
+                                            <p class="mb-1">
+                                                <i class="fas fa-calendar text-primary me-2"></i>
+                                                <strong>Upcoming:</strong> <%= upcoming %>
+                                            </p>
+                                            <p class="mb-0">
+                                                <i class="fas fa-history text-secondary me-2"></i>
+                                                <strong>Past:</strong> <%= past %>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <% 
+                                                const levels = {};
+                                                lectures.forEach(l => {
+                                                    levels[l.level] = (levels[l.level] || 0) + 1;
+                                                });
+                                            %>
+                                            <p class="mb-0">
+                                                <i class="fas fa-list text-info me-2"></i>
+                                                <strong>By Level:</strong>
+                                                <% Object.keys(levels).forEach(level => { %>
+                                                    <span class="badge bg-info me-1">
+                                                        <%= level %>: <%= levels[level] %>
+                                                    </span>
+                                                <% }) %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-hide alerts
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Update upcoming/past counts
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const lectureCards = document.querySelectorAll('.lecture-card');
+            
+            lectureCards.forEach(card => {
+                const dateText = card.querySelector('.lecture-details p:first-child').textContent;
+                const lectureDate = new Date(dateText.split(':')[1].trim());
+                
+                if (lectureDate < today) {
+                    card.style.borderLeftColor = '#6c757d';
+                    const badge = card.querySelector('.badge.bg-success');
+                    if (badge) {
+                        badge.className = 'badge bg-secondary';
+                        badge.innerHTML = '<i class="fas fa-check me-1"></i>Completed';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
