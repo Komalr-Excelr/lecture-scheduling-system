@@ -1,10 +1,4 @@
-🎓 Lecture Scheduling System
-A complete online lecture scheduling system with auto-clash prevention built with Node.js, Express, MySQL, and Bootstrap 5.
 
-https://img.shields.io/badge/Node.js-20.x-green
-https://img.shields.io/badge/MySQL-8.0-blue
-https://img.shields.io/badge/Express-4.x-lightgrey
-https://img.shields.io/badge/license-MIT-blue
 
 ✨ Features
 Admin Panel
